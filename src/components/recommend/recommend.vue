@@ -6,7 +6,7 @@
           <slider>
             <div v-for="item in recommends">
               <a :href="item.linkUrl">
-                <img :src="item.picUrl">
+                <img @load="imgOnLoad" :src="item.picUrl">
               </a>
             </div>
           </slider>
@@ -65,6 +65,12 @@ export default {
         // console.log(res.data)
         this.discList = res.data.list
       })
+    },
+    imgOnLoad() {
+      if (!this.checkLoaded) {
+        this.$refs.scroll.refresh()
+        this.checkLoaded = true
+      }
     }
   }
 }

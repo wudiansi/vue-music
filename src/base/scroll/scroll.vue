@@ -46,13 +46,13 @@ export default {
     },
     refresh() {
       this.scroll && this.scroll.refresh()
-    },
-    watch: {
-      data() {
-        setTimeout(() => {
-          this.refresh()
-        }, 20)
-      }
+    }
+  },
+  watch: {
+    data() {
+      setTimeout(() => {
+        this.refresh()
+      }, 20)
     }
   }
 }
