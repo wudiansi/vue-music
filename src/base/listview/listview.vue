@@ -2,7 +2,7 @@
   <scroll class="listview" 
   :data="data"
   ref="listview"
-  :probe-ype="probeType"
+  :probeType="probeType"
   :listen-scroll="listenScroll"
   @scroll="scroll"
   >
@@ -20,7 +20,12 @@
 
     <div class="list-shortcut">
       <ul>
-        <li v-for="(item, index) in shortCutList" :data-index="index" class="item" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
+        <li v-for="(item, index) in shortCutList" 
+        :data-index="index" 
+        class="item"
+        :class="{'current': currentIndex === index}"
+        @touchstart="onShortcutTouchStart" 
+        @touchmove.stop.prevent="onShortcutTouchMove">
           {{item}}
         </li>
       </ul>
@@ -69,6 +74,28 @@ export default {
       setTimeout(() => {
         this._calculateHeight()
       }, 20)
+    },
+    // 监听scrollY值的变化
+    scrollY(newY) {
+      const height = this.listHeight
+      // 当滚到顶部newY大于0
+      if (newY > 0) {
+        this.currentIndex = 0
+        return
+      }
+
+      for (let i = 0; i < height.length - 1; i++) {
+        let height1 = height[i]
+        let height2 = height[i + 1]
+        // 在中间部分滚动
+        if (-newY >= height1 && -newY < height2) {
+          this.currentIndex = i
+          return
+        }
+      }
+      // 滚动到底部且-newY大于最后一个元素的上限
+      this.currentIndex = this.listHeight.length - 2
+      this.currentIndex = 0
     }
   },
   methods: {
@@ -107,20 +134,7 @@ export default {
         height += item.clientHeight
         this.listHeight.push(height)
       }
-    },
-    scrollY(newY) {
-      const height = this.listHeight
-      for (let i = 0; i < height.length; i++) {
-        let height1 = height[i]
-        let height2 = height[i + 1]
-
-        if (!height2 || (-newY > height1 && -newY < height2)) {
-          this.currentIndex = i
-          return
-        }
-      }
-      this.currentIndex = 0
-      console.log(this.currentIndex)
+      console.log(this.listHeight)
     }
   }
 }

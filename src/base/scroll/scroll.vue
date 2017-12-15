@@ -33,7 +33,6 @@ export default {
   },
   methods: {
     _initScroll() {
-      let me = this
       if (!this.$refs.wrapper) {
         return
       }
@@ -45,6 +44,7 @@ export default {
 
       // listenScroll为真坚挺scroll事件
       if (this.listenScroll) {
+        let me = this
         this.scroll.on('scroll', (pos) => {
           me.$emit('scroll', pos)
         })
