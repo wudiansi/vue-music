@@ -118,6 +118,15 @@ export default {
       this._srcollToIndex(anchorIndex)
     },
     _srcollToIndex(index) {
+      if (!index && index !== 0) {
+        return
+      }
+      if (index < 0) {
+        index = 0
+      } else if (index > this.listHeight.length - 2) {
+        index = this.listHeight.length - 2
+      }
+      this.scrollY = -this.listHeight[index]
       this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
     },
     scroll(pos) {
@@ -134,7 +143,6 @@ export default {
         height += item.clientHeight
         this.listHeight.push(height)
       }
-      console.log(this.listHeight)
     }
   }
 }
