@@ -1,0 +1,1 @@
+export const singer = state => state.singer// ES6箭头简写
