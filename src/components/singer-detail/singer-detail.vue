@@ -7,6 +7,8 @@
 
 <script>
 import {mapGetters} from 'vuex'
+import {getSingerDetail} from 'api/singer'
+import {ERR_OK} from 'api/config'
 
 export default {
   computed: {
@@ -16,7 +18,17 @@ export default {
     ])
   },
   created() {
+    this._getdetail()
     console.log(this.singer)
+  },
+  methods: {
+    _getdetail() {
+      getSingerDetail(this.singer.id).then((res) => {
+        if (res.code === ERR_OK) {
+          console.log(res.data.list)
+        }
+      })
+    }
   }
 }
 </script>
