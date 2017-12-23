@@ -4,10 +4,11 @@
       <i class="icon-back"></i>
     </div>
     <h1 class="title" v-html="title"></h1>
-    <div class="bg-image" :style="bgStyle">
+    <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="filter"></div>
     </div>
-    <scroll :data="songs" class="list">
+    <div class="bg-layer" ref="layer"></div>
+    <scroll @scroll="scroll" :listen-scroll="listenScroll" :probe-type="probeType" :data="songs" class="list" ref="list">
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
       </div>
@@ -19,12 +20,17 @@
 import Scroll from 'base/scroll/scroll'
 import SongList from 'base/song-list/song-list'
 
+const RESERVED_HEIGHT = 40
 export default {
   data() {
-    return {}
+    return {
+      scrollY: 0
+    }
   },
   created() {
-    console.log(this.songs)
+    this.probeType = 3
+    this.listenScroll = true
+    // console.log(this.songs)
   },
   props: {
     title: {
@@ -45,9 +51,26 @@ export default {
       return `background-image:url(${this.bgImage})`
     }
   },
+  mounted() {
+    this.imageHeight = this.$refs.bgImage.clientHeight
+    this.minTransalteY = -this.imageHeight + RESERVED_HEIGHT
+    this.$refs.list.$el.style.top = `${this.imageHeight}px`
+  },
   components: {
     Scroll,
     SongList
+  },
+  methods: {
+    scroll(pos) {
+      this.scrollY = pos.y
+    }
+  },
+  watch: {
+    scrollY(newVal) {
+      let translateY = Math.max(this.minTransalteY, newVal)
+      this.$refs.layer.style['transform'] = `translate3d(0,${translateY}px,0)`
+      this.$refs.layer.style['transform'] = `-webkit-translate3d(0,${translateY}px,0)`
+    }
   }
 }
 </script>
@@ -92,7 +115,7 @@ export default {
       padding-top: 70%
       transform-origin: top
       background-size: cover
-      z-index : 9
+      // z-index : 9
       .play-wrapper
         position: absolute
         bottom: 20px
