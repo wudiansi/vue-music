@@ -68,8 +68,26 @@ export default {
   watch: {
     scrollY(newVal) {
       let translateY = Math.max(this.minTransalteY, newVal)
+      let zIndex = 0
+      let scale = 1
+      const percent = Math.abs(newVal / this.imageHeight)
+      if (newVal > 0) {
+        scale = 1 + percent
+        zIndex = 10
+      }
       this.$refs.layer.style['transform'] = `translate3d(0,${translateY}px,0)`
-      this.$refs.layer.style['transform'] = `-webkit-translate3d(0,${translateY}px,0)`
+      this.$refs.layer.style['-webkit-transform'] = `translate3d(0,${translateY}px,0)`
+      if (newVal < this.minTransalteY) {
+        zIndex = 10
+        this.$refs.bgImage.style.paddingTop = 0
+        this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
+      } else {
+        this.$refs.bgImage.style.paddingTop = `70%`
+        this.$refs.bgImage.style.height = 0
+      }
+      this.$refs.bgImage.style.zIndex = zIndex
+      this.$refs.bgImage.style['transform'] = `scale(${scale})`
+      this.$refs.bgImage.style['-webkit-transform'] = `scale(${scale})`
     }
   }
 }
