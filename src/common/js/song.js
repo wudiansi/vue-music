@@ -11,7 +11,7 @@ export default class Song {
   }
 }
 
-export function createdSong(musicData) {
+export function createSong(musicData) {
   return new Song({
     id: musicData.songid,
     mid: musicData.songmid,
@@ -19,7 +19,7 @@ export function createdSong(musicData) {
     name: musicData.songname,
     album: musicData.albumname,
     duration: musicData.interval, // 歌曲播放时长(s)
-    image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albumid}.jpg?max_age=2592000`,
+    image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`,
     url: `http://ws.stream.qqmusic.qq.com/${musicData.songid}.m4a?fromtag=46`
   })
 }

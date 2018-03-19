@@ -42,7 +42,7 @@ export default {
         click: this.click
       })
 
-      // listenScroll为真坚挺scroll事件
+      // listenScroll为真监听scroll事件
       if (this.listenScroll) {
         let me = this
         this.scroll.on('scroll', (pos) => {

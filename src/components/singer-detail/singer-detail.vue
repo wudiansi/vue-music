@@ -10,7 +10,7 @@ import {mapGetters} from 'vuex'
 import {getSingerDetail} from 'api/singer'
 import {ERR_OK} from 'api/config'
 import musicList from 'components/music-list/music-list'
-import {createdSong} from 'common/js/song'
+import {createSong} from 'common/js/song'
 
 export default {
   data() {
@@ -53,7 +53,7 @@ export default {
         let {musicData} = item
         if (musicData.songid && musicData.albummid) {
           // 一个工厂化方法 少new
-          ret.push(createdSong(musicData))
+          ret.push(createSong(musicData))
         }
       })
       return ret
