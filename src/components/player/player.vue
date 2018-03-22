@@ -21,7 +21,7 @@
 
         <div class="middle">
           <div class="middle-l">
-            <div class="cd-wrapper">
+            <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd">
                 <img class="image" :src="currentSong.image" alt="">
               </div>
@@ -89,20 +89,43 @@
         </div>      
       </div>
     </transition>
+    <audio ref="audio" :src="playUrl"></audio>
   </div>
 </template>
 
 <script type="text/exmascript-6">
 import {mapGetters, mapMutations} from 'vuex'
-import animation from 'create-keyframe-animation'
+import animations from 'create-keyframe-animation'
+import {prefixStyle} from 'common/js/dom'
+import { ERR_OK } from 'api/config'
+import {getSinglePlayingUrl} from 'api/singer'
+
+const transform = prefixStyle('transform')
+
+// 歌曲链接地址头部
+const URL_HEAD = `https://dl.stream.qqmusic.qq.com`
 
 export default {
+  data(){
+    return{
+      playUrl: ''
+    }
+  },
   computed: {
     ...mapGetters([
       'fullScreen',
       'playlist',
       'currentSong'
     ])
+  },
+  watch: {
+    currentSong(){
+      this.$nextTick(()=>{
+        // 设置播放器播放地址
+        this._getSinglePlayingUrl(null, this.currentSong.mid)        
+        this.$refs.audio.play()
+      })
+    }
   },
   methods: {
     back() {
@@ -112,17 +135,94 @@ export default {
       this.setFullScreen(true)
     },
     enter(el, done) {
+      let {x, y, scale} = this.getPosAndScale()
 
+      let animation = {
+        0: {
+          transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+        },
+        60: {
+          transform: `translate3d(0,0,0) scale(1.1)`
+        },
+        100: {
+          transform: `translate3d(0,0,0) scale(1)`
+        }
+      }
+
+      animations.registerAnimation({
+        name: 'move',
+        animation,
+        persets: {
+          duration: 400,
+          easing: 'linaer'
+        }
+      })
+
+      animations.runAnimation(this.$refs.cdWrapper,'move',done)
     },
     afterEnter() {
-
+      animations.unregisterAnimation('move')
+      this.$refs.cdWrapper.style.animation = ''
     },
     leave(el, done) {
+      this.$refs.cdWrapper.style.transition = 'all 0.4s'
+      const {x, y, scale} = this.getPosAndScale()
 
+      this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
+      this.$refs.cdWrapper.addEventListener('transitionend', done)
     },
     afterLeave() {
+      this.$refs.cdWrapper.style.transition = ''
+      this.$refs.cdWrapper.style[transform] = ''
+    },
+    getPosAndScale() {
+      const targetWidth = 40
+      const paddingLeft = 40
+      const paddingBottom = 30
+      const paddingTop = 80
+      const width = window.innerWidth * 0.8
+      const scale = targetWidth / width
+      const x = -(window.innerWidth / 2 - paddingLeft)
+      const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
+      return {
+        x,
+        y,
+        scale
+      }
+    },
+    // 获取播放歌曲的播放链接
+    _getSinglePlayingUrl (strMediaMid, songmid) {
+        // 两种情况 如果请求找不到歌曲就执行以下个接口
+        // 默认播放器没有错误
+        if (strMediaMid) {
+            getSinglePlayingUrl(strMediaMid).then((res) => {
+                if (res.code === ERR_OK) {
+                    this.filename = res.data.items[0].filename;
+                    this.vkey = res.data.items[0].vkey;
 
-    },    
+                    // 歌曲播放地址
+                    this.playUrl = `${URL_HEAD}/${this.filename}?vkey=${this.vkey}&guid=${getCookie('guid')}&uin=0&fromtag=66`;
+
+                    // 发送选择歌曲播放链接总线程
+                    Bus.$emit('selectSong', this.playUrl);
+                }
+            });
+        }
+        else {
+            // 备用接口
+            getSinglePlayingUrl(songmid).then((res) => {
+                if (res.code === ERR_OK) {
+                    this.filename = res.data.items[0].filename;
+                    this.vkey = res.data.items[0].vkey;
+
+                    // 歌曲播放地址
+                    this.playUrl = `${URL_HEAD}/${this.filename}?vkey=${this.vkey}&guid=${getCookie('guid')}&uin=0&fromtag=66`;
+                    // 发送选择歌曲播放链接总线程
+                    Bus.$emit('selectSong', this.playUrl);
+                }
+            });
+        }
+    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN'
     })

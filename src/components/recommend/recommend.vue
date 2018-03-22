@@ -40,6 +40,8 @@ import Scroll from 'base/scroll/scroll'
 import loading from 'base/loading/loading'
 import { getRecommend, getDiscList } from 'api/recommend'
 import { ERR_OK } from 'api/config'
+// 设置cookie setCookie  获取cookie getCookie
+import {setCookie, getCookie} from 'common/js/cookie'
 
 export default {
   data() {
@@ -51,6 +53,8 @@ export default {
   created() {
     this._getRecommend()
     this._getDiscList()
+    // 把歌曲guid保存到cookie
+    this.setGuid()
   },
   components: {
     Slider,
@@ -75,6 +79,23 @@ export default {
       if (!this.checkLoaded) {
         this.$refs.scroll.refresh()
         this.checkLoaded = true
+      }
+    },
+    // 获取歌曲播放的 guid !!!!!!!!!!!!!!!!!!!!!! 重要
+    guid () {
+      let date = new Date()
+      return Math.round(2147483647 * Math.abs(Math.random() - 1) * date.getUTCMilliseconds() % 1e10)
+    },
+    // 把歌曲guid保存到cookie !!!!!!!!!!!!!!!!!!!!!! 重要 每天设置一次
+    setGuid () {
+      let d = new Date()
+      let n = d.getHours()
+      // 如果没有guid就设置guid
+      if (!getCookie('guid')) {
+        setCookie('guid', this.guid, Infinity, '/')
+      } else if (n === 0) {
+        // 如果有guid每天重置一次
+        setCookie('guid', this.guid, Infinity, '/')
       }
     }
   }

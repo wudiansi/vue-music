@@ -18,7 +18,7 @@ export function getDiscList () {
   const url = '/api/getDiscList'
 
   const data = Object.assign({}, commonParams, {
-    platform: 'yqq',
+    platform: 'h5page',
     hostUin: 0,
     sin: 0,
     ein: 29,
